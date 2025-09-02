@@ -29,11 +29,8 @@ io.on('connection', socket => {
     socket.on('join-room', (roomId, userId) => {
         console.log(`User ${userId} joining room ${roomId}`)
         socket.join(roomId)
-        
-        // Broadcast to others in the room that this user connected
         socket.to(roomId).emit('user-connected', userId)
         
-        // Handle disconnect within the join-room context
         socket.on('disconnect', () => {
             console.log(`User ${userId} disconnected from room ${roomId}`)
             socket.to(roomId).emit('user-disconnected', userId)
@@ -41,6 +38,8 @@ io.on('connection', socket => {
     })
 })
 
-server.listen(3000, () => {
-    console.log('Server running on port 3000')
+// Use environment port for deployment, fallback to 3000 for local
+const PORT = process.env.PORT || 3000
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`)
 })

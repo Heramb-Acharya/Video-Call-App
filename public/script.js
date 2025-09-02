@@ -1,9 +1,11 @@
 const socket = io('/')
 const videoGrid = document.getElementById('video-grid')
 
+// Use public PeerJS server for deployment
 const myPeer = new Peer(undefined, {
-    host: '/',
-    port: '3001'
+    host: 'peerjs-server.herokuapp.com',
+    port: 443,
+    secure: true
 })
 
 const myVideo = document.createElement('video')
@@ -30,13 +32,11 @@ navigator.mediaDevices.getUserMedia({
             video.remove()
         })
         
-        // Store the call in peers object
         peers[call.peer] = call
     })
 
     socket.on('user-connected', userId => {
         console.log('User connected:', userId)
-        // Add a small delay to ensure the peer is ready
         setTimeout(() => {
             connectToNewUser(userId, stream)
         }, 1000)
@@ -47,7 +47,7 @@ socket.on('user-disconnected', userId => {
     console.log('User disconnected:', userId)
     if (peers[userId]) {
         peers[userId].close()
-        delete peers[userId] // Clean up the peers object
+        delete peers[userId]
     }
 })
 
@@ -56,7 +56,6 @@ myPeer.on('open', id => {
     socket.emit('join-room', ROOM_ID, id)
 })
 
-// Add error handling for peer connection
 myPeer.on('error', err => {
     console.error('Peer error:', err)
 })
@@ -90,3 +89,5 @@ function addVideoStream(video, stream) {
     })
     videoGrid.append(video)
 }
+
+
